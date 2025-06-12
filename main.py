@@ -128,4 +128,4 @@ if __name__ == "__main__":
     print(f"Prompt: {prompt}\n")
     print(f"Response: {main(prompt)}")
 
-# python process_invoice.py --prompt "Process the invoice image file 'data/invoice_images/aaaaa_copy.jpg'"
+# python main.py --prompt "Process the invoice image file 'data/invoice_images/aaaaa_copy.jpg'"
