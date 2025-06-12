@@ -1,0 +1,8 @@
+openai
+psycopg2-binary
+requests
+dotenv
+pydantic
+google-api-python-client
+google_auth_oauthlib
+openpyxl
