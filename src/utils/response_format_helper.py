@@ -1,23 +1,20 @@
 from pydantic import BaseModel, Field
 
-class InvoiceLineFormat(BaseModel):
-    invoice_item_description: str = Field(
-        description="Description of the invoice item, e.g., 'Fuel for vehicle'."
+class InvoiceParserFormat(BaseModel):
+    invoice_date: str = Field(
+        description="The date of the invoice in YYYY-MM-DD format."
     )
-    invoice_amount_including_gst: float = Field(
+    invoice_description: str = Field(
+        description="Description of the invoice items, e.g., 'Fuel for vehicle'."
+    )
+    invoice_amount_total: float = Field(
         description="Total amount of the invoice item including GST."
     )
     invoice_amount_gst: float = Field(
-        description="GST amount for the invoice item."
+        description="GST tax amount for the invoice item. This is calculated as invoice_amount_total - (invoice_amount_total / 1.15)."
     )
     invoice_amount_excluding_gst: float = Field(
-        description="Total amount of the invoice item excluding GST."
-    )
-
-class InvoiceParserFormat(BaseModel):
-    invoice_lines: list[InvoiceLineFormat]
-    invoice_date: str = Field(
-        description="The date of the invoice in YYYY-MM-DD format."
+        description="Amount of the invoice item excluding GST tax. If invoice amount excluding GST is not available, it should be the same as (invoice_amount_total - invoice_amount_gst)."
     )
 
 class ExpenseCateogoryFormat(BaseModel):
