@@ -8,5 +8,6 @@ Language model picks an agent to perform task asked by a user.
     - output:
 
         Prompt: Process the invoice image file 'data/invoice_images/aaaaa_copy.jpg'
+
         Response: Okay, the invoice has been processed and the data has been updated in Google Sheet with the following details: 19/05/2024, Fuel, 81.45. The update was made to cells A7:C7 in the Expense sheet.
 
