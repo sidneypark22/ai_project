@@ -2,15 +2,22 @@ from openai import OpenAI
 from typing import List
 from pydantic import BaseModel, Field
 import base64
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 class OpenAIClientHelper:
-    def __init__(self, base_url: str, api_key: str, llm_options: dict = {}) -> OpenAI:
-        self.base_url = base_url
+    def __init__(self, base_url: str | None = None, api_key: str | None = None, llm_options: dict = {}) -> OpenAI:
+        self.base_url = base_url or os.getenv("OPENAI_API_BASE_URL")
+        self.api_key = api_key or os.getenv("OPENAI_API_KEY"),
         self.client = OpenAI(
             base_url=self.base_url,
-            api_key=api_key,
+            api_key=self.api_key,
         )
-        self.llm_options = llm_options
+        self.llm_options = {
+            "temperature": 0.0,
+            "top_p": 0.0,
+        } if llm_options == {} else llm_options
 
     def chat_completion_create(self, model: str, messages: list, temperature: float = 0.7, **kwargs) -> dict:
         return self.client.chat.completions.create(
@@ -47,7 +54,7 @@ class OpenAIClientHelper:
             return base64.b64encode(image_file.read()).decode('utf-8')
     
     def append_image_prompt_to_messages(self, messages: list, prompt: str, image_base64: str) -> list[dict]:
-        return messages.append({
+        messages.append({
             "role": "user",
             "content": [
                 {
@@ -62,3 +69,4 @@ class OpenAIClientHelper:
                 },
             ],
         })
+        return messages
