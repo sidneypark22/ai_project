@@ -5,6 +5,7 @@ from src.llm.utils import OpenAIClientHelper
 from src.utils.response_format_helper import InvoiceParserFormat
 from pydantic import BaseModel
 from src.utils.response_format_helper import ExpenseCateogoryFormat, InvoiceParserFormat
+from src.llm.prompt_engineering.prompt_helper import InvoiceParserPrompts
 from openai.types.chat.parsed_chat_completion import ParsedChatCompletion
 
 class InvoceParser:
@@ -41,11 +42,15 @@ class InvoceParser:
             model=self.model,
             messages=[
                 {
+                    "role": "system",
+                    "content": InvoiceParserPrompts.parser_system_prompt,
+                },
+                {
                     "role": "user",
                     "content": [
                         {
                             "type": "text",
-                            "text": "Please parse the invoice and return the result in the specified format. For invoice date, use YYYY-MM-DD format.",
+                            "text": """Please parse the invoice and return the result in the provided response format."""
                         },
                         {
                             "type": "image_url",
@@ -59,8 +64,7 @@ class InvoceParser:
             response_format=InvoiceParserFormat
         )
         response_json = json.loads(response.choices[0].message.content)
-        for il in response_json["invoice_lines"]:
-            il["expense_category"] = self.categorise_expense(il["invoice_item_description"])
+        response_json["expense_category"] = self.categorise_expense(response_json["invoice_description"])
         return response_json
     
     def categorise_expense(self, expense_description: str) -> str:
@@ -69,11 +73,7 @@ class InvoceParser:
             messages=[
                 {
                     "role": "system",
-                    "content": f"""You are an helpful assistant in keeping track of invoice/expenses for the user.
-Help the user categorise an expense item by matching an expense description to one of the categorise provided below:
-
-Categories:
-{"\n".join(self.expense_categories)}""",
+                    "content": InvoiceParserPrompts.categoriser_system_prompt.format(expense_categories="\n".join(self.expense_categories)),
                 },
                 {
                     "role": "user",
